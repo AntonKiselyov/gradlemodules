@@ -1,0 +1,42 @@
+group 'ru.akiselyov'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+apply plugin: 'base'
+apply plugin: 'application'
+
+dependencies {
+    compile project(':moduleA')
+    compile project(':moduleB')
+}
+
+subprojects {
+    task customClean(type: Delete) {
+        doLast { task ->
+            delete task.project.buildDir
+        }
+    }
+
+    task customBuild(type: Exec) {
+        dependsOn(customClean)
+        commandLine 'cmd', '/c', 'gradle build'
+    }
+
+
+    task customRun(type: JavaExec) {
+        dependsOn(customBuild)
+        main = "ru.akiselyov.Main"
+        classpath = sourceSets.main.runtimeClasspath
+    }
+
+}
+
+task readArguments {
+    for(String module in modules.split(',')) {
+        println module
+    }
+}
+
+
+
+/*gradle -Pmodules=myProp,ssdsds,dssd readArguments*/
